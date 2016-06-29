@@ -1,4 +1,6 @@
-package Validation
+package traceable.Core
+
+import Validation.{Validate, Validation}
 
 object TestCore extends App {
   import cats.syntax.all._
