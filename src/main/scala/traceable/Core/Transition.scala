@@ -1,4 +1,4 @@
-package traceable.Core
+package traceable.core
 
 /**
   * Created by artemkazakov on 6/14/16.

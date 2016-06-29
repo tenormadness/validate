@@ -1,8 +1,9 @@
-package traceable.Instances
+package traceable.instances
+
+import traceable.core.{Traceable, TraceableOps}
+import traceable.syntax.TraceableSyntax
 
 /**
  * Created by lucatosatto on 6/28/16.
  */
-class ConsoleTraceable {
-
-}
+object ConsoleTraceable extends Recorders.ConsolePrinter with TraceableOps with TraceableSyntax { }

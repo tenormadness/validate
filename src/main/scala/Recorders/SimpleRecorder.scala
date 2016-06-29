@@ -1,6 +1,6 @@
 package Recorders
 
-import traceable.Core.{Traceable, Transition}
+import traceable.core.{Traceable, Transition}
 
 /**
   * Created by artemkazakov on 6/13/16.

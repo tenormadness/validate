@@ -1,17 +1,30 @@
 package traceable.syntax
 
+import Recorders.ITransitionRecorder
 import cats._
-import traceable.Core.Traceable
+import traceable.core.{Transition, TraceableOps, Traceable}
+import cats.syntax.all._
 
 import scala.language.{higherKinds, implicitConversions}
 import scala.math.Fractional
 
-object TraceableSyntax {
+trait TraceableSyntax extends ITransitionRecorder with TraceableOps {
+
+  import traceable.core.TraceableOps
+  import cats.std.list._
+  import cats.syntax.cartesian._
 
   implicit def TraceableCanBeFractional[T](implicit ev: Fractional[T]): Fractional[Traceable[T]] = new Fractional[Traceable[T]] {
 
-    override def plus(x: Traceable[T], y: Traceable[T]): Traceable[T] =
-      (Descriptor("+") |@| x |@| y).map { case (_, a, b) => ev.plus(a, b) }
+    import Fractional.Implicits._
+
+    override def plus(x: Traceable[T], y: Traceable[T]): Traceable[T] = {
+
+      val result = Traceable(x.value + y.value)
+      recordTransition(x, result, "+")
+      recordTransition(y, result, "+")
+      result
+    }
 
     override def toDouble(x: Traceable[T]): Double = ev.toDouble(x.value)
 
@@ -19,43 +32,26 @@ object TraceableSyntax {
 
     override def toInt(x: Traceable[T]): Int = ev.toInt(x.value)
 
-    override def negate(x: Traceable[T]): Traceable[T] =
-      (Descriptor("-") |@| x).map((d, a) => ev.negate(a))
+    override def negate(x: Traceable[T]): Traceable[T] = x.map(ev.negate)
 
-    override def fromInt(x: Int): Traceable[T] = Validate(ev.fromInt(x))
+    override def fromInt(x: Int): Traceable[T] = Traceable(ev.fromInt(x))
 
     override def toLong(x: Traceable[T]): Long = ev.toLong(x.value)
 
     override def times(x: Traceable[T], y: Traceable[T]): Traceable[T] =
-      (Descriptor("*") |@| x |@| y).map { case (_, a, b) => ev.times(a, b) }
+      (cartesianSyntax(x) |@| y).map { case (a, b) => ev.times(a, b) }
 
     override def minus(x: Traceable[T], y: Traceable[T]): Traceable[T] =
-      (Descriptor("-") |@| x |@| y).map { case (_, a, b) => ev.minus(a, b) }
+      (x |@| y).map { case (a, b) => ev.minus(a, b) }
 
     override def compare(x: Traceable[T], y: Traceable[T]): Int = ev.compare(x.value, y.value)
 
-    override def div(x: Traceable[T], y: Traceable[T]): Traceable[T] =
-      (Descriptor("/") |@| x |@| y).map { case (_, a, b) => a / b }
+    override def div(x: Traceable[T], y: Traceable[T]): Traceable[T] = for {a <- x; b <- y} yield { a / b }
   }
 
-  implicit def TraceableCanBeSemigroup[T](implicit ev: Semigroup[T]) = new Semigroup[Traceable[T]] {
+  implicit def TraceableCanBeSemigroup[T](implicit ev: Semigroup[T]): Semigroup[Traceable[T]] = new Semigroup[Traceable[T]] {
     override def combine(x: Traceable[T], y: Traceable[T]): Traceable[T] =
-      (Descriptor("|+|") |@| x |@| y).map { case (_, a, b) => a |+| b }
-  }
-
-  implicit def functorCombine[F[_]](implicit ev: Functor[F]) = new Functor.Composite[Traceable, F] {
-    override def F: Functor[Traceable] = Traceable.TraceableApIsApplicative
-    override def G: Functor[F] = ev
-  }
-
-//  TODO: WTF!  Noel's suggest that every Traceable wraps around a Monad by default, then I could pipe functors through Traceable easily but I would need to provide an ID monad for any simple type
-//  implicit def functorOps[F[_]](implicit ev: Functor[F]) = new Functor[Traceable[F[_]]] {
-//    override def map[A, B](fa: Traceable[A])(f: (A) => B): Traceable[B] = functorCombine(ev).map(fa)()
-//  }
-  // TODO: This is half baked, not very nice at all
-  implicit class TraceableCombiner[F[_]: Functor, A](fa: Traceable[F[A]]) {
-    def mapValidate[B](f: A=> B): Traceable[F[B]] = (Descriptor("function: " + f.toString()) |@| fa).map {case (_, f0) => implicitly[Functor[F]].map(f0)(f)}
-  //functorCombine[F].map(fa)(f)
+      (x |@| y).map { case (a, b) => a |+| b }
   }
 
 }
