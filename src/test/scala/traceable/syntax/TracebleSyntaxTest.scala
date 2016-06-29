@@ -1,28 +1,38 @@
-package Validation
+package traceable.syntax
 
-import cats.syntax.functor._
-import cats.syntax.cartesian._
-import cats.syntax.semigroup._
 import cats.std.list._
+import cats.syntax.functor._
+import cats.syntax.semigroup._
 import traceable.core.Traceable
+
+import scala.Predef.{any2stringadd => _, _}
 import scala.math.Fractional
-import Fractional.Implicits._
-import Predef.{any2stringadd => _, _}
+import scala.math.Fractional.Implicits._
 
 object TracebleSyntaxTest extends App {
 
-  import traceable.instances.ConsoleTraceable._
+  import traceable.instances.TestTraceable._
+
+  def graphToConsole: Unit = {
+    println(printTransitions)
+    clearGraph
+  }
   // testing algebra
 
   println("SOME SIMPLE TESTS")
 
   val one = Traceable(1.0)
+  recordNode(one)
   println(s"one = $one")
+  graphToConsole
 
   val two = one + one
-  println(s"two = $two")
+  recordNode(two)
+  recordNode(one)
 
   val three = one + two
+  recordNode(three)
+  graphToConsole
   println(s"three = $three")
 
   val number = -Traceable(1.0) * (Traceable(5.0) - Traceable(3.0)) / Traceable(2.0)
