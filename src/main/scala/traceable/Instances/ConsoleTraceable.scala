@@ -8,4 +8,4 @@ import traceable.syntax.TraceableSyntax
  */
 object ConsoleTraceable extends Recorders.ConsolePrinter with TraceableOps with TraceableSyntax { }
 
-object TestTraceable extends Recorders.TestGraphRecorder with TraceableOps with TraceableSyntax { }
+

@@ -3,6 +3,7 @@ package traceable.syntax
 import cats.std.list._
 import cats.syntax.functor._
 import cats.syntax.semigroup._
+import traceable.TestTraceable
 import traceable.core.Traceable
 
 import scala.Predef.{any2stringadd => _, _}
@@ -11,7 +12,7 @@ import scala.math.Fractional.Implicits._
 
 object TracebleSyntaxTest extends App {
 
-  import traceable.instances.TestTraceable._
+  import TestTraceable._
 
   def graphToConsole: Unit = {
     println(printTransitions)

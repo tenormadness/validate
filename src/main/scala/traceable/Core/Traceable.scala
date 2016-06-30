@@ -10,62 +10,35 @@ sealed abstract class CanBeTraced[T] {
   def value: T
 }
 
-case class Traceable[T](value: T, id: Long) extends CanBeTraced[T]
-//case class TraceableFunction[T](id: Long, value: T, descriptor: String) extends CanBeTraced[T]
+sealed trait ITraceableFunction[A, B] extends (A => B) {
 
+  def tag: String
+  def f: A => B
+
+  override def apply(in: A): B = f.apply(in)
+
+  override def toString(): String = "Function: " + tag
+
+}
+
+/** A value that is traced, also a node in the graph */
+final case class Traceable[T](value: T, id: Long) extends CanBeTraced[T]
+
+/** An enriched function that can tag graph edges when applied */
+final case class TraceableFunction[A, B](f: A => B, tag: String) extends ITraceableFunction[A, B]
+
+/** A special enconding for a grpah node that is a function (not sure we need this) */
+final case class FunctionNode[A, B](f: A => B, tag: String, id: Long) extends CanBeTraced[String] with ITraceableFunction[A, B] {
+  override val value: String = tag
+}
+
+// Some constructors
 object Traceable {
-  def apply[T](value: T) = new Traceable(value, ThreadLocalRandom.current().nextLong)
+  def apply[T](value: T) = Traceable(value, ThreadLocalRandom.current().nextLong)
 }
-//object TraceableFunction {  TODO:
-//  def apply[T](value: T) = new Traceable(ThreadLocalRandom.current().nextLong, value)
-//}
 
-trait TraceableOps extends ITransitionRecorder {
-
-  implicit object TraceableIsMonad extends Monad[Traceable] {
-
-    override def pure[A](x: A): Traceable[A] = {
-
-      val result = Traceable(x)
-      //recordNode(result)
-      result
-
-    }
-
-    override def flatMap[A, B](fa: Traceable[A])(f: (A) => Traceable[B]): Traceable[B] = {
-
-      val result = f(fa.value)
-      recordTransition(Transition(fa.id, result.id, ""))
-      result
-    }
+object FunctionNode {
+  def apply[A, B](f: A => B, tag: String) = {
+    FunctionNode(f, tag, ThreadLocalRandom.current().nextLong)
   }
-
-//  implicit class TracedApply[T](in: Traceable[T]) = {
-//
-//    def flatMapTrace(f: (A) => Traceable[B]): Traceable[B] = {
-//
-//
-//  }
-
 }
-
-
-//    override def ap[A, B](ff: Traceable[(A) => B])(fa: Traceable[A]): Traceable[B] = {
-//
-//      val result = Traceable(ff.value(fa.value))
-//      recordTransition(Transition(fa.id, result.id, "data"))
-//      recordTransition(Transition(ff.id, result.id, "function"))
-//      result
-//
-//    }
-//
-//    override def product[A, B](fa: Traceable[A], fb: Traceable[B]): Traceable[(A, B)] = {
-//
-//      val result = Traceable((fa.value, fb.value))
-//      result
-//
-//    }
-
-//override def map[A, B](fa: Traceable[A])(f: (A) => B): Traceable[B] = ???
-
-
