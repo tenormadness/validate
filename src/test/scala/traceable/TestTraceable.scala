@@ -1,7 +1,7 @@
 package traceable
 
-import traceable.core.TraceableOps
+import traceable.core.TraceableCoreOps
 import traceable.syntax.TraceableSyntax
 
 
-object TestTraceable extends Recorders.TestGraphRecorder with TraceableOps with TraceableSyntax { }
+object TestTraceable extends Recorders.TestGraphRecorder with TraceableCoreOps with TraceableSyntax { }

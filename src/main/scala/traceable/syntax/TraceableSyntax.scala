@@ -2,15 +2,15 @@ package traceable.syntax
 
 import Recorders.ITransitionRecorder
 import cats._
-import traceable.core.{Transition, TraceableOps, Traceable}
+import traceable.core.{GraphEdgeFunction, GraphEdgeFunction2, TraceableCoreOps, Traceable}
 import cats.syntax.all._
 
 import scala.language.{higherKinds, implicitConversions}
 import scala.math.Fractional
 
-trait TraceableSyntax extends ITransitionRecorder with TraceableOps {
+trait TraceableSyntax extends ITransitionRecorder with TraceableCoreOps {
 
-  import traceable.core.TraceableOps
+  import traceable.core.TraceableCoreOps
   import cats.std.list._
   import cats.syntax.cartesian._
 
@@ -50,8 +50,15 @@ trait TraceableSyntax extends ITransitionRecorder with TraceableOps {
   }
 
   implicit def TraceableCanBeSemigroup[T](implicit ev: Semigroup[T]): Semigroup[Traceable[T]] = new Semigroup[Traceable[T]] {
-    override def combine(x: Traceable[T], y: Traceable[T]): Traceable[T] =
-      (x |@| y).map { case (a, b) => a |+| b }
+    override def combine(x: Traceable[T], y: Traceable[T]): Traceable[T] = {
+
+
+      val curryCombine: T => T => T = (z) => ev.combine(z, _)
+      //val graphFun: T => T => T = (x) => GraphEdgeFunction(ev.combine.curried(x)(_), "|+|")
+
+      (x |@| y).map( GraphEdgeFunction2(ev.combine, "|+|") )
+
+    }
   }
 
 }

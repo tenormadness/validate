@@ -36,26 +36,31 @@ object TracebleSyntaxTest extends App {
   graphToConsole
   println(s"three = $three")
 
-  val number = -Traceable(1.0) * (Traceable(5.0) - Traceable(3.0)) / Traceable(2.0)
-  println(s"A failed test: $number")
-
-  val oneMore = number + one
-  println(s"But I can continue after failing!: $oneMore")
-
-  println("\n\n")
+//  val number = -Traceable(1.0) * (Traceable(5.0) - Traceable(3.0)) / Traceable(2.0)
+//  println(s"A failed test: $number")
+//
+//  val oneMore = number + one
+//  println(s"But I can continue after failing!: $oneMore")
+//
+//  println("\n\n")
 //
 //
   // TESTING MONOIDS
+
   println("TESTING MONOIDS")
-  val list1x = List(1, 2 ,3)
-  val list2x = List(1, 2 ,3)
-  val listJoinx = list1x |+| list2x
-  println(listJoinx)
+//  val list1x = List(1, 2 ,3)
+//  val list2x = List(1, 2 ,3)
+//  val listJoinx = list1x |+| list2x
+//  graphToConsole
+//  println(listJoinx)
 
   val list1 = Traceable(List(1, 2 ,3))
   val list2 = Traceable(List(1, 2 ,3))
   val listJoin = list1 |+| list2
-
+  recordNode(list1)
+  recordNode(list2)
+  recordNode(listJoin)
+  graphToConsole
   println(s"listJoin = $listJoin")
 //
 //
