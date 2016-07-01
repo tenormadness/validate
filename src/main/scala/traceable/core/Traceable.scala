@@ -3,7 +3,6 @@ package traceable.core
 import java.util.concurrent.ThreadLocalRandom
 
 import Recorders.ITransitionRecorder
-import cats.{Monad, Applicative, Cartesian}
 
 sealed abstract class Trace[T] extends {
 
