@@ -1,6 +1,6 @@
 package traceable.instances
 
-import traceable.core.{TraceableCoreOps, Traceable}
+import traceable.core.{TraceableCoreOps}
 import traceable.syntax.TraceableSyntax
 
 /**

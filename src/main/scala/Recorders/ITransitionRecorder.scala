@@ -1,6 +1,6 @@
 package Recorders
 
-import traceable.core.{Transition, Traceable}
+import traceable.core.{Trace, Traceable, Transition}
 
 trait ITransitionRecorder {
 
@@ -16,5 +16,14 @@ trait ITransitionRecorder {
   }
 
   //TODO: record metadata for node
+
+  def flatMapTrace[T, TT](in: Trace[T])(tag: String)(f: T => Traceable[TT]) = {
+
+    val result = f(in.value)
+
+    recordTransition(Transition(in.id, result.id, tag))
+
+    result
+  }
 
 }

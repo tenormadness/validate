@@ -2,7 +2,7 @@ package traceable.syntax
 
 import Recorders.ITransitionRecorder
 import cats._
-import traceable.core.{GraphEdgeFunction, GraphEdgeFunction2, TraceableCoreOps, Traceable}
+import traceable.core._
 import cats.syntax.all._
 
 import scala.language.{higherKinds, implicitConversions}
@@ -56,7 +56,7 @@ trait TraceableSyntax extends ITransitionRecorder with TraceableCoreOps {
       val curryCombine: T => T => T = (z) => ev.combine(z, _)
       //val graphFun: T => T => T = (x) => GraphEdgeFunction(ev.combine.curried(x)(_), "|+|")
 
-      (x |@| y).map( GraphEdgeFunction2(ev.combine, "|+|") )
+      (x |@| y).map( ev.combine )
 
     }
   }

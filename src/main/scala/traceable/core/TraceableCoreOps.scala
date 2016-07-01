@@ -20,28 +20,23 @@ trait TraceableCoreOps extends ITransitionRecorder {
 
       val result = f(fa.value)
 
-      f match {
-        case traceFun @GraphEdgeFunction(_, tag) =>
-          println(tag)
-          recordTransition(Transition(fa.id, result.id, tag))
-        case _ => recordTransition(Transition(fa.id, result.id, ""))
-      }
+      recordTransition(Transition(fa.id, result.id, ""))
 
       result
     }
 
 
-    override def map[A, B](fa: Traceable[A])(f: (A) => B): Traceable[B] = {
-
-      val result = pure(f(fa.value))
-
-      f match {
-        case GraphEdgeFunction(_, tag) => recordTransition(Transition(fa.id, result.id, tag))
-        case _ => recordTransition(Transition(fa.id, result.id, ""))
-      }
-
-      result
-    }
+//    override def map[A, B](fa: Traceable[A])(f: (A) => B): Traceable[B] = {
+//
+//      val result = pure(f(fa.value))
+//
+//      f match {
+//        case GraphEdgeFunction(_, tag) => recordTransition(Transition(fa.id, result.id, tag))
+//        case _ => recordTransition(Transition(fa.id, result.id, ""))
+//      }
+//
+//      result
+//    }
 //
   }
 }

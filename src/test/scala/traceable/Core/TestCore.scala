@@ -24,7 +24,7 @@ object TestCore extends App {
   println("\n\n")
 
   // I have list of Val and val of list
-  val foo = List(Traceable(1, 1), Traceable(2, 2),  Traceable(3, 3))//.sequence
+  val foo = List(Traceable(1), Traceable(2),  Traceable(3))//.sequence
   foo.foreach(recordNode)
   val fooo = foo.map(_ |@| one)
       .map(_ map (_ + _))

@@ -3,65 +3,63 @@ package traceable.core
 import java.util.concurrent.ThreadLocalRandom
 
 import Recorders.ITransitionRecorder
-import cats.{Monad, Applicative}
+import cats.{Monad, Applicative, Cartesian}
 
+sealed abstract class Trace[T] extends {
 
-/** trait that encodes a node in the graph */
-sealed abstract class CanBeTraced[T] {
   def id: Long
   def value: T
-}
 
-/** traced functions are graph edges */
-sealed trait ITraceableFunction {
+  def flatMapTrace[TT](tag: String)(f:  T => Traceable[TT])(implicit recorder: ITransitionRecorder): Traceable[TT] = {
 
-  type In
-  type Out
+    recorder.flatMapTrace(this)(tag)(f)
 
-  def tag: String
-  def f: In => Out
+  }
 
-  override def toString(): String = "Function: " + tag
+  def mapTrace[TT](tag: String)(f:  T => TT)(implicit transitionRecorder: ITransitionRecorder): Traceable[TT] = {
+
+    val id = getId()
+    val function: T => Traceable[TT] = in => Traceable(f(in), id)
+    flatMapTrace(tag)(function)
+  }
+
+  protected def getId(): Long = ThreadLocalRandom.current().nextLong
 
 }
 
 /** A value that is traced, also a node in the graph */
-final case class Traceable[T](value: T, id: Long) extends CanBeTraced[T]
+final case class Traceable[T](value: T, id: Long) extends Trace[T] {
 
-/** Enriched functions that can tag graph edges when applied (I hate scala for not extending over arity!)*/
-final case class GraphEdgeFunction[In, Out](f: In => Out, tag: String) extends (In => Out) {
-
-  def apply(in: In): Out = f(in)
+  def |*|[TT](that: Traceable[TT]) = TraceBuilder2(this.value, that, getId())
 
 }
-final case class GraphEdgeFunction2[In1, In2, Out](f: (In1, In2) => Out, tag: String) extends ((In1, In2) => Out) {
 
-  def apply(in1: In1, in2: In2): Out = f(in1, in2)
+object Traceable {
 
+  def apply[T](value: T): Traceable[T] = Traceable(value, ThreadLocalRandom.current().nextLong)
+
+}
+
+
+// The classes below are the traced equivalent ot a cartesian builder, currently they are built only for 2, 3 and 4 arguments,
+// more should be added in needed unless we use shapeless
+
+final case class TraceBuilder2[T1, T2](v1: T1, v2: T2, id: Long) extends Trace[(T1, T2)] {
+
+  def |*|[TT](that: Traceable[TT]) = TraceBuilder3(this.value, that.value, this.id)
+  def value: (T1, T2) = (v1, v2)
+
+}
+
+final case class TraceBuilder3[T1, T2, T3](v1: (T1, T2), v2: T3, id: Long) extends Trace[(T1, T2, T3)] {
+
+  def |*|[TT](that: Traceable[TT]) = TraceBuilder4(this.value, that.value, this.id)
+  def value: (T1, T2, T3) = (v1._1, v1._2, v2)
+}
+
+final case class TraceBuilder4[T1, T2, T3, T4](v1: (T1, T2, T3), v2: T4, id: Long) extends Trace[(T1, T2, T3, T4)] {
+  override def value: (T1, T2, T3, T4) = (v1._1, v1._2, v1._3, v2)
 }
 
 /** A special encoding for a graph node that is a function (not sure we need this, a bit of a dirty thing... but if you want to flatmap...) */
-//final case class FunctionNode(value: ITraceableFunction, id: Long) extends CanBeTraced[ITraceableFunction] /*with ITraceableFunction {
-//  override type In = value.In
-//
-//  override def tag: String = value.tag
-//
-//  override def f: (In) => Out = value.f
-//
-//  override type Out = value.Out
-//}
-//*/
-// Some constructors
-object Traceable {
-  def apply[T](value: T): Traceable[T] = Traceable(value, ThreadLocalRandom.current().nextLong)
-}
 
-//object FunctionNode {
-////  def apply[A, B](f: A => B, tag: String): FunctionNode[A, B] = {
-////    FunctionNode(GraphEdgeFunction(f, tag), ThreadLocalRandom.current().nextLong)
-////  }
-//
-//  def apply(in: ITraceableFunction): FunctionNode = {
-//    FunctionNode(in, ThreadLocalRandom.current().nextLong)
-//  }
-// }
