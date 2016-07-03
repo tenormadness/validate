@@ -29,7 +29,7 @@ sealed abstract class Trace[T] extends {
 /** A value that is traced, also a node in the graph */
 final case class Traceable[T](value: T, id: Long) extends Trace[T] {
 
-  def |*|[TT](that: Traceable[TT]) = TraceBuilder2(this.value, that, getId())
+  def |*|[TT](that: Traceable[TT]) = TraceBuilder2(this.value, that.value, getId())
 
 }
 

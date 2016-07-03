@@ -1,10 +1,11 @@
 package traceable.syntax
 
+import Recorders.TestGraphRecorder
 import cats.std.list._
 import cats.syntax.functor._
 import cats.syntax.semigroup._
-import traceable.TestTraceable
 import traceable.core.Traceable
+import TraceableSyntax._
 
 import scala.Predef.{any2stringadd => _, _}
 import scala.math.Fractional
@@ -12,7 +13,8 @@ import scala.math.Fractional.Implicits._
 
 object TracebleSyntaxTest extends App {
 
-  import TestTraceable._
+  implicit val recorder = TestGraphRecorder
+  import recorder._
 
   def graphToConsole: Unit = {
     println(printTransitions)

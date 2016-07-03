@@ -4,8 +4,8 @@
 		module="validate-build"
 		revision="0.1-SNAPSHOT"
 		status="integration"
-		publication="20160627181654"
-		e:sbtVersion="0.13" e:scalaVersion="2.10"
+		publication="20160703121355"
+		e:scalaVersion="2.10" e:sbtVersion="0.13"
 	>
 		<description>
 		validate-build

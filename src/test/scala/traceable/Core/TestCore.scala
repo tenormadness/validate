@@ -1,12 +1,16 @@
 package traceable.core
 
+import Recorders.TestGraphRecorder
+
 
 object TestCore extends App {
   import cats.syntax.all._
   //import cats.all
   import cats.std.list._
+  import traceable.syntax.TraceableSyntax._
 
-  import traceable.instances.ConsoleTraceable._
+  implicit val recorder = TestGraphRecorder
+  import recorder._
 
   // one plus one is ... ?
 

@@ -8,7 +8,7 @@ import scala.collection.mutable
 /**
  * Holds Graph nodes and transition in memory
  */
-trait TestGraphRecorder extends ITransitionRecorder {
+object TestGraphRecorder extends ITransitionRecorder {
 
   var transitions: mutable.Buffer[Transition] = mutable.Buffer()
   var nodes: mutable.Buffer[Traceable[_]] = mutable.Buffer()

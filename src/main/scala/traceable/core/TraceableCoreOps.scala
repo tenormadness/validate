@@ -4,9 +4,10 @@ import Recorders.ITransitionRecorder
 import cats.Monad
 
 
-trait TraceableCoreOps extends ITransitionRecorder {
+trait TraceableCoreOps  {
 
-  implicit object TraceableIsMonad extends Monad[Traceable] {
+
+  implicit def TraceableIsMonad(implicit recorder: ITransitionRecorder): Monad[Traceable] = new Monad[Traceable]{
 
     override def pure[Z](x: Z): Traceable[Z] = {
 
@@ -20,7 +21,7 @@ trait TraceableCoreOps extends ITransitionRecorder {
 
       val result = f(fa.value)
 
-      recordTransition(Transition(fa.id, result.id, ""))
+      recorder.recordTransition(Transition(fa.id, result.id, ""))
 
       result
     }
